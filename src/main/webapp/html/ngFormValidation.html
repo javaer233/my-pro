@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>ng表单验证测试</title>
+    <style>
+        button {
+            width: 80px;
+            height: 20px;
+        }
+        .
+    </style>
+</head>
+<script src="../lib/angularjs/angular.js"></script>
+<body ng-app="validationApp" ng-controller="mainController">
+    <form name="myForm" ng-submit="submitForm(myForm.$valid)" novalidate>
+        <input name="name" type="number" placeholder="name" ng-model="name111" required/><br/>
+        <input name="username" type="text" placeholder="Username" ng-minlength="3" ng-maxlength="8" ng-model="form.username"/><br/>
+        <input name="email" type="email" placeholder="email" ng-model="form.email"/><br/>
+        <button type="submit" ng-disabled="myForm.$valid?true:false">提交</button>
+        <p ng-show="myForm.name.$invalid && !myForm.name.required">名字不能为空</p>
+        <p ng-show="myForm.name.$error.number">只能是数字！</p>
+        <p ng-show="myForm.username.$invalid && !myForm.name.$pristine">username名字不能为空</p>
+        <p ng-show="myForm.username.$error.minlength">长度太短小了</p>
+        <span ng-show="myForm.email.$error.email">邮箱格式错误</span>
+    </form>
+</body>
+<script>
+    angular.module("validationApp",[]).controller("mainController", function () {
+        
+    })
+</script>
+</html>
