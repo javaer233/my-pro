@@ -23,6 +23,7 @@ public class SpittleControllerTest {
         for (int i = 0; i < count; i++) {
             spittles.add(new Spittle("Spittle " + i, new Date()));
         }
+        return spittles;
     }
 
 }
