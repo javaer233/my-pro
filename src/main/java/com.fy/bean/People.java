@@ -6,4 +6,8 @@ package com.fy.bean;
 public interface People {
     String say();
     void listen();
+
+
+
+
 }
