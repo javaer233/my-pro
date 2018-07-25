@@ -7,7 +7,5 @@ public interface People {
     String say();
     void listen();
 
-
-
-
+    int getAge();
 }
