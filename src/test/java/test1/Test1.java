@@ -19,4 +19,13 @@ public class Test1 {
         File file = new File("d:/aaa.txt");
         System.out.println(file.mkdir());
     }
+
+    @Test
+    public void test2(){
+        Boolean b = true;
+        //char cb = (char)b;
+        char c = '2';
+        short s = (short)c;
+        System.out.println(s);
+    }
 }
