@@ -15,6 +15,8 @@ public class StaticSingleton {
     }
     //从静态内部类获取对象
     public StaticSingleton getInstance(){
+        //调用该方法，内部类被加载，此时才会创建该单例对象
+        // 利用了classLoader的加载机制实现懒加载（反射仍可以创建多个对象）
         return InnerSingleton.staticSingleton;
     }
 }

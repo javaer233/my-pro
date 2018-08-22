@@ -7,5 +7,6 @@ package designPattern.singleton;
  * 简洁易用
  **/
 enum EnumSingleton {
+    //jvm会阻止反射获取私有构造方法，无法使用反射构造多个对象
     INSTANCE;
 }
