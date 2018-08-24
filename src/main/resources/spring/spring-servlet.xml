@@ -1,0 +1,189 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:mvc="http://www.springframework.org/schema/mvc"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:aop="http://www.springframework.org/schema/aop"
+       xmlns:task="http://www.springframework.org/schema/task"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+       http://www.springframework.org/schema/beans/spring-beans.xsd
+       http://www.springframework.org/schema/mvc
+       http://www.springframework.org/schema/mvc/spring-mvc.xsd
+       http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd
+       http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop.xsd
+       http://www.springframework.org/schema/task http://www.springframework.org/schema/task/spring-task.xsd">
+
+    <description>Spring公共配置</description>
+
+    <!--加载配置文件-->
+    <!--在程序中可以 @Value("#{settings['key_name']}" 的方式获取值)-->
+    <!--util:properties id="settings" location="classpath*:/settings.properties"/-->
+    <!--上述方式中文乱码，不能设置encoding，故用下面的方式-->
+    <bean id="settings" class="org.springframework.beans.factory.config.PropertiesFactoryBean">
+        <property name="location" value="classpath:settings.properties"/>
+        <property name="fileEncoding" value="UTF-8"/>
+    </bean>
+
+    <bean id="constants" class="org.springframework.beans.factory.config.PropertiesFactoryBean">
+        <property name="location" value="classpath:constants.properties"/>
+        <property name="fileEncoding" value="UTF-8"/>
+    </bean>
+
+    <bean id="jdbc" class="org.springframework.beans.factory.config.PropertiesFactoryBean">
+        <property name="location" value="classpath:jdbc.properties"/>
+        <property name="fileEncoding" value="UTF-8"/>
+    </bean>
+
+    <!--<bean id="corsConfig" class="com.fyp.utils.CorsConfigurerAdapter"></bean>-->
+
+    <!-- 视图解析器
+	解析jsp解析，默认使用jstl标签，classpath下的得有jstl的包
+	 -->
+    <bean class="org.springframework.web.servlet.view.UrlBasedViewResolver">
+        <!-- 返回的视图模型数据需要经过jstl来处理 -->
+        <property name="viewClass" value="org.springframework.web.servlet.view.JstlView"></property>
+        <property name="prefix" value="/WEB-INF/html/" />
+        <property name="suffix" value=".html" />
+    </bean>
+
+    <!-- 扫描注解 -->
+    <!--<context:component-scan base-package="com"/>-->
+<!--     <context:component-scan base-package="com.ha.common"/> -->
+
+
+    <!--mvc:annotation-driven validator="validator" conversion-service="conversionService"-->
+    <mvc:annotation-driven>
+        <mvc:message-converters register-defaults="true">
+            <!-- 将StringHttpMessageConverter的默认编码设为UTF-8 -->
+            <bean class="org.springframework.http.converter.StringHttpMessageConverter">
+                <constructor-arg value="UTF-8"/>
+                <property name="writeAcceptCharset" value="false" />
+            </bean>
+            <!--替换 jackson 为 fastjson-->
+            <bean id="fastJsonHttpMessageConverter"
+                  class="com.alibaba.fastjson.support.spring.FastJsonHttpMessageConverter">
+                <property name="supportedMediaTypes">
+                    <list>
+                        <value>application/json;charset=UTF-8</value>
+                        <value>text/html;charset=UTF-8</value><!-- 避免IE出现下载JSON文件的情况 -->
+                    </list>
+                </property>
+                <property name="features">
+                    <array>
+                        <value>PrettyFormat</value>
+                        <value>WriteMapNullValue</value>
+                        <value>QuoteFieldNames</value>
+                        <value>WriteDateUseDateFormat</value>
+                        <value>WriteNullStringAsEmpty</value>
+                    </array>
+                </property>
+            </bean>
+        </mvc:message-converters>
+    </mvc:annotation-driven>
+
+    <!--拦截器-->
+    <!--<mvc:interceptors>-->
+    <!--</mvc:interceptors>-->
+
+    <!-- 静态资源的访问不控制 -->
+    <!--<mvc:resources location="/" mapping="/**"/>-->
+    <!--<mvc:resources location="/statics/" mapping="/**/*.js"/>-->
+
+    <!-- 事务拦截 -->
+    <aop:config expose-proxy="true">
+        <!-- 事务切入点 -->
+        <aop:pointcut id="servicesPointcut" expression="execution(* com.fy.service.*.*(..))"/>
+    </aop:config>
+
+    <!-- 业务服务层日志拦截 -->
+    <bean id="serviceLogAspect" class="com.fy.util.logAspect.LogAspectService"/>
+
+    <aop:config expose-proxy="true">
+        <aop:aspect id="serviceLogAspect_AOP" ref="serviceLogAspect" order="1">
+            <aop:pointcut id="serviceLogPointcut" expression="execution(* com.fy.service.*.*(..))"/>
+            <aop:before pointcut-ref="serviceLogPointcut" method="doBefore"/>
+            <aop:after pointcut-ref="serviceLogPointcut" method="doAfter"/>
+            <aop:around pointcut-ref="serviceLogPointcut" method="doAround"/>
+            <aop:after-throwing pointcut-ref="serviceLogPointcut" method="doThrowing" throwing="ex"/>
+        </aop:aspect>
+    </aop:config>
+
+    <!--     controller层错误异常自定义拦截 -->
+    <bean id="controllerLogAspect" class="com.fy.util.logAspect.LogAspectController"/>
+    <aop:config expose-proxy="true">
+        <aop:aspect id="controllerLogAspect_AOP" ref="controllerLogAspect" order="1">
+            <aop:pointcut id="controllerLogPointcut" expression="execution(* com.fy.controller.*.*(..))"/>
+            <aop:before pointcut-ref="controllerLogPointcut" method="doBefore"/>
+            <aop:after pointcut-ref="controllerLogPointcut" method="doAfter"/>
+            <aop:around pointcut-ref="controllerLogPointcut" method="doAround"/>
+            <aop:after-throwing pointcut-ref="controllerLogPointcut" method="doThrowing" throwing="ex"/>
+        </aop:aspect>
+    </aop:config>
+
+
+    <!--强制使用CGLIB代理-->
+    <aop:config proxy-target-class="true"></aop:config>
+
+    <!-- 定义aspectj -->
+    <aop:aspectj-autoproxy expose-proxy="true" proxy-target-class="true"/>
+
+
+    <!--spring默认统一的异常处理-->
+    <bean id="exceptionHandlerExceptionResolver"
+          class="org.springframework.web.servlet.mvc.method.annotation.ExceptionHandlerExceptionResolver">
+    </bean>
+
+    <!--自定义的的异常处理 -->
+    <!--<bean class=""/>-->
+
+
+    <!--文件上传;配置上传拦截，如最大上传值及最小上传值-->
+    <bean id="multipartResolver" class="org.springframework.web.multipart.commons.CommonsMultipartResolver">
+        <property name="defaultEncoding" value="utf-8"/>
+        <!-- 指定所上传文件的总大小不能超过200M。注意maxUploadSize属性的限制不是针对单个文件，而是所有文件的容量之和 -->
+        <property name="maxUploadSize" value="20480000"/><!--20mb-->
+        <property name="resolveLazily" value="true" />
+        <property name="maxInMemorySize" value="4096" />
+        <!--上传临时中转目录
+        <property name="uploadTempDir" value="WEB-INF/temp"/>-->
+    </bean>
+
+	<!--<mvc:annotation-driven conversion-service="conversionService" >-->
+		<!--<mvc:message-converters>-->
+            <!--<bean class="org.springframework.http.converter.json.MappingJackson2HttpMessageConverter">-->
+                <!--<property name="objectMapper">-->
+                    <!--<bean class="com.fasterxml.jackson.databind.ObjectMapper">-->
+						<!--&lt;!&ndash;<property name="serializationInclusion" value="NON_NULL" />&ndash;&gt;-->
+                        <!--<property name="dateFormat">-->
+                            <!--<bean class="java.text.SimpleDateFormat">-->
+                                <!--<constructor-arg type="java.lang.String" value="yyyy-MM-dd HH:mm:ss" />-->
+                            <!--</bean>-->
+                        <!--</property>-->
+                    <!--</bean>-->
+                <!--</property>-->
+            <!--</bean>-->
+        <!--</mvc:message-converters>-->
+	<!--</mvc:annotation-driven>-->
+    <bean id="conversionService" class="org.springframework.format.support.FormattingConversionServiceFactoryBean">
+		<property name="converters">
+			<set>
+				<bean class="com.fy.util.StringToDateConverter" />
+			</set>
+		</property>
+	</bean>
+<!--     <task:annotation-driven scheduler="qbScheduler" mode="proxy"/> -->
+<!--     <task:scheduler id="qbScheduler" pool-size="10"/> -->
+
+<!-- 	<bean id="myRealm" class="com.fy.dp.controller.shiro.ShiroAuthorizingRealm" /> -->
+<!-- 	<bean id="securityManager" class="org.apache.shiro.web.mgt.DefaultWebSecurityManager"> -->
+<!-- 		<property name="realm" ref="myRealm" /> -->
+<!-- 	</bean> -->
+<!-- 	<bean id="lifecycleBeanPostProcessor" class="org.apache.shiro.spring.LifecycleBeanPostProcessor" /> -->
+<!--     <bean id="shiroFilter" class="org.apache.shiro.spring.web.ShiroFilterFactoryBean"> -->
+<!-- 		<property name="securityManager" ref="securityManager" /> -->
+<!-- 	</bean> -->
+<!-- 	<aop:config proxy-target-class="true"/>   -->
+<!-- 	<bean class="org.apache.shiro.spring.security.interceptor.AuthorizationAttributeSourceAdvisor">   -->
+<!--     	<property name="securityManager" ref="securityManager"/>   -->
+<!-- 	</bean> -->
+</beans>

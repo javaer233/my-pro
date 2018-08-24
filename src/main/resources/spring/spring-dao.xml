@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:aop="http://www.springframework.org/schema/aop"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+       http://www.springframework.org/schema/beans/spring-beans.xsd
+       http://www.springframework.org/schema/context
+       http://www.springframework.org/schema/context/spring-context.xsd
+       http://www.springframework.org/schema/aop
+       http://www.springframework.org/schema/aop/spring-aop.xsd">
+
+    <context:component-scan base-package="com.fy">
+    </context:component-scan>
+
+    <!--数据库配置文件-->
+    <bean id="propertyConfigurer"
+          class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+        <property name="ignoreUnresolvablePlaceholders" value="true"/>
+        <property name="locations">
+            <list>
+                <value>classpath:jdbc.properties</value>
+            </list>
+        </property>
+    </bean>
+
+    <!--多个数据源配置  -->
+    <bean name="dp" class="com.alibaba.druid.pool.DruidDataSource"
+          init-method="init" destroy-method="close">
+        <!-- 连接数据库参数 -->
+        <property name="driverClassName" value="${jdbc.driverClassName}"/>
+        <property name="url" value="${jdbc.url}"/>
+        <property name="username" value="${jdbc.username}"/>
+        <property name="password" value="${jdbc.password}"/>
+
+        <!--连接池参数 -->
+        <property name="initialSize" value="10"/>
+        <property name="maxActive" value="500"/>
+        <property name="minIdle" value="10"/>
+    </bean>
+
+    <bean name="um" class="com.alibaba.druid.pool.DruidDataSource"
+          init-method="init" destroy-method="close">
+        <!-- 连接数据库参数 -->
+        <property name="driverClassName" value="${jdbc-um.driverClassName}"/>
+        <property name="url" value="${jdbc-um.url}"/>
+        <property name="username" value="${jdbc-um.username}"/>
+        <property name="password" value="${jdbc-um.password}"/>
+
+        <!--连接池参数 -->
+        <property name="initialSize" value="10"/>
+        <property name="maxActive" value="500"/>
+        <property name="minIdle" value="10"/>
+    </bean>
+
+    <bean id="multipleDataSource" class="com.fy.bean.MultipleDataSource">
+        <property name="targetDataSources">
+            <map key-type="java.lang.String">
+                <entry key="dp" value-ref="dp"/>
+                <entry key="um" value-ref="um"/>
+            </map>
+        </property>
+    </bean>
+
+    <!-- 配置druid监控spring jdbc -->
+    <bean id="druid-stat-interceptor" class="com.alibaba.druid.support.spring.stat.DruidStatInterceptor"/>
+
+    <bean id="druid-stat-pointcut" class="org.springframework.aop.support.JdkRegexpMethodPointcut" scope="prototype">
+        <property name="patterns">
+            <list>
+                <value>com.fy.service.*</value>
+            </list>
+        </property>
+    </bean>
+
+    <bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
+        <!--注入数据库连接池-->
+        <property name="dataSource" ref="multipleDataSource"/>
+        <!--全局配置文件-->
+        <property name="configLocation" value="classpath:spring/mybatis-config.xml"/>
+        <!-- mybatis开启缓存支持 -->
+        <property name="configurationProperties">
+            <props>
+                <!--<prop key="cacheEnabled">true</prop>-->
+                <prop key="lazyLoadingEnabled">false</prop>
+                <prop key="aggressiveLazyLoading">true</prop>
+            </props>
+        </property>
+        <!--扫描实体类包-->
+        <property name="typeAliasesPackage" value="com.fy.bean.*"/>
+        <!--扫描映射包-->
+        <property name="mapperLocations" value="classpath:mybatis/*.xml"/>
+    </bean>
+
+    <bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">
+        <!--注入sqlSessionFactory-->
+        <property name="sqlSessionFactoryBeanName" value="sqlSessionFactory"/>
+        <!--给出需要扫描的dao包-->
+        <property name="basePackage" value="com.fy.mapper"/>
+    </bean>
+
+
+    <!-- 事务管理
+        <bean id="transactionManager"
+              class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+            <property name="dataSource" ref="dataSource" />
+        </bean>
+          <aop:config expose-proxy="true">
+              <aop:advisor advice-ref="druid-stat-interceptor" pointcut-ref="druid-stat-pointcut"/>
+          </aop:config>
+          -->
+
+
+</beans>
