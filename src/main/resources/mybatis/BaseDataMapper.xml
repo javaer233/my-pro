@@ -2,16 +2,19 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.fy.mapper.BaseDataMapper">
 
-    <select id = "getList" resultType="java.util.Map" parameterType="java.lang.String">
+    <select id = "getList" resultType="java.util.Map">
         ${sql}
     </select>
 
-    <select id = "getInfo" resultType="java.util.Map" parameterType="java.lang.String">
+    <select id = "getInfo" resultType="java.util.Map">
         ${sql}
     </select>
-
 
     <select id= "getOlapData" resultType="java.util.LinkedHashMap" parameterType="java.lang.String">
+        ${sql}
+    </select>
+
+    <select id="getSet" parameterType="java.lang.String" resultType="java.lang.String">
         ${sql}
     </select>
 

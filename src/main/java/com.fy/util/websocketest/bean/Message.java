@@ -1,23 +1,40 @@
 package com.fy.util.websocketest.bean;
 
 /**
- * @Author kai
- * @Description 消息
- * @Create 2018-05-15 15:37
- **/
+ * 传输的消息体
+ */
 public class Message {
-    private String id;
-    private String msg;
-    private String from;
-    private String to;
 
+    private String token;
+	private String userId;  //由谁发的
+	private String userName;
+	private String to; //发给谁
+	private String content; //聊天内容
+    private String headImg;//用户头像
+    private String img;//发送的图片
 
-    public String getFrom() {
-        return from;
+    public String getToken() {
+        return token;
     }
 
-    public void setFrom(String from) {
-        this.from = from;
+    public void setToken(String token) {
+        this.token = token;
+    }
+
+    public String getUserId() {
+        return userId;
+    }
+
+    public void setUserId(String userId) {
+        this.userId = userId;
+    }
+
+    public String getUserName() {
+        return userName;
+    }
+
+    public void setUserName(String userName) {
+        this.userName = userName;
     }
 
     public String getTo() {
@@ -28,20 +45,40 @@ public class Message {
         this.to = to;
     }
 
-    public String getId() {
-        return id;
+    public String getContent() {
+        return content;
     }
 
-    public void setId(String id) {
-        this.id = id;
+    public void setContent(String content) {
+        this.content = content;
     }
 
-    public String getMsg() {
-        return msg;
+    public String getHeadImg() {
+        return headImg;
     }
 
-    public void setMsg(String msg) {
-        this.msg = msg;
+    public void setHeadImg(String headImg) {
+        this.headImg = headImg;
     }
 
+    public String getImg() {
+        return img;
+    }
+
+    public void setImg(String img) {
+        this.img = img;
+    }
+
+    @Override
+    public String toString() {
+        return "Message{" +
+                "token='" + token + '\'' +
+                ", userId='" + userId + '\'' +
+                ", userName='" + userName + '\'' +
+                ", to='" + to + '\'' +
+                ", content='" + content + '\'' +
+                ", headImg='" + headImg + '\'' +
+                ", img='" + img + '\'' +
+                '}';
+    }
 }
