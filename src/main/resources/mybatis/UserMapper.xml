@@ -1,0 +1,132 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.fy.mapper.UserMapper">
+    <insert id="insertSelective" parameterType="com.lw.bean.Users" >
+        insert into lw_users
+        <trim prefix="(" suffix=")" suffixOverrides="," >
+            <if test="userId != null" >
+                user_id,
+            </if>
+            <if test="userName != null" >
+                user_name,
+            </if>
+            <if test="userPassword != null" >
+                user_password,
+            </if>
+            <if test="mobile != null" >
+                mobile,
+            </if>
+            <if test="telephone != null" >
+                telephone,
+            </if>
+            <if test="country != null" >
+                country,
+            </if>
+            <if test="province != null" >
+                province,
+            </if>
+            <if test="city != null" >
+                city,
+            </if>
+            <if test="area != null" >
+                area,
+            </if>
+            <if test="addressDetail != null" >
+                address_detail,
+            </if>
+            <if test="wxAuthorizationSign != null" >
+                wx_authorization_sign,
+            </if>
+            <if test="wbAuthorizationSign != null" >
+                wb_authorization_sign,
+            </if>
+            <if test="age != null" >
+                age,
+            </if>
+            <if test="marriage != null" >
+                marriage,
+            </if>
+            <if test="birth != null" >
+                birth,
+            </if>
+            <if test="registrationTime != null" >
+                registration_time,
+            </if>
+            <if test="registrationIp != null" >
+                registration_ip,
+            </if>
+            <if test="lastUpdateTime != null" >
+                last_update_time,
+            </if>
+            <if test="state != null" >
+                state,
+            </if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides="," >
+            <if test="userId != null" >
+                #{userId,jdbcType=VARCHAR},
+            </if>
+            <if test="userName != null" >
+                #{userName,jdbcType=VARCHAR},
+            </if>
+            <if test="userPassword != null" >
+                #{userPassword,jdbcType=VARCHAR},
+            </if>
+            <if test="mobile != null" >
+                #{mobile,jdbcType=VARCHAR},
+            </if>
+            <if test="telephone != null" >
+                #{telephone,jdbcType=VARCHAR},
+            </if>
+            <if test="country != null" >
+                #{country,jdbcType=VARCHAR},
+            </if>
+            <if test="province != null" >
+                #{province,jdbcType=VARCHAR},
+            </if>
+            <if test="city != null" >
+                #{city,jdbcType=VARCHAR},
+            </if>
+            <if test="area != null" >
+                #{area,jdbcType=VARCHAR},
+            </if>
+            <if test="addressDetail != null" >
+                #{addressDetail,jdbcType=VARCHAR},
+            </if>
+            <if test="wxAuthorizationSign != null" >
+                #{wxAuthorizationSign,jdbcType=VARCHAR},
+            </if>
+            <if test="wbAuthorizationSign != null" >
+                #{wbAuthorizationSign,jdbcType=VARCHAR},
+            </if>
+            <if test="age != null" >
+                #{age,jdbcType=INTEGER},
+            </if>
+            <if test="marriage != null" >
+                #{marriage,jdbcType=INTEGER},
+            </if>
+            <if test="birth != null" >
+                #{birth,jdbcType=DATE},
+            </if>
+            <if test="registrationTime != null" >
+                #{registrationTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="registrationIp != null" >
+                #{registrationIp,jdbcType=VARCHAR},
+            </if>
+            <if test="lastUpdateTime != null" >
+                #{lastUpdateTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="state != null" >
+                #{state,jdbcType=INTEGER},
+            </if>
+        </trim>
+    </insert>
+    <select id="countIfRegistered" parameterType="java.lang.String" resultType="java.lang.Integer">
+    select count(1) from lw_users where wx_authorization_sign = #{openId, jdbcType=VARCHAR};
+  </select>
+    <select id="getUserInfoByOpenId" parameterType="java.lang.String" resultType="com.lw.bean.Users">
+        select name,user_name,user_password from lw_users
+        where wx_authorization_sign = #{openId, jdbcType=VARCHAR};
+    </select>
+</mapper>
